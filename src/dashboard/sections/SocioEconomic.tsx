@@ -37,11 +37,11 @@ export function SocioEconomic() {
               <div className="absolute top-2 right-2 bg-card/80 p-2 rounded-md border border-border shadow-sm z-10 text-[10px] md:text-[11px] space-y-1">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
-                  <span className="text-muted-foreground">High HDI (>0.65)</span>
+                  <span className="text-muted-foreground">High HDI (&gt;0.65)</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
-                  <span className="text-muted-foreground">Low HDI (<0.65)</span>
+                  <span className="text-muted-foreground">Low HDI (&lt;0.65)</span>
                 </div>
               </div>
               <ResponsiveContainer width="100%" height="100%">

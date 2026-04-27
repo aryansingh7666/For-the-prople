@@ -38,7 +38,7 @@ export function StoryMode({ active, onClose }: { active: boolean; onClose: () =>
       <h3 className="font-display text-xl mb-1">{step.title}</h3>
       <p className="text-sm text-muted-foreground leading-relaxed min-h-[3em]">{text}<span className="inline-block w-1.5 h-4 bg-saffron align-middle ml-0.5" style={{ animation: "type-caret 0.7s steps(1) infinite" }} /></p>
       <div className="mt-3 h-1 bg-muted rounded overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-saffron to-india-blue transition-all duration-[4500ms] ease-linear" style={{ width: `${((i + 1) / STEPS.length) * 100}%` }} />
+        <div className="h-full bg-gradient-to-r from-saffron to-india-blue transition-all ease-linear" style={{ width: `${((i + 1) / STEPS.length) * 100}%`, transitionDuration: "4500ms" }} />
       </div>
     </div>
   );
