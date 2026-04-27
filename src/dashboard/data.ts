@@ -121,12 +121,14 @@ export interface PartyResult { party: string; seats: number; vote_share: number;
 export const PARTY_2024: PartyResult[] = [
   { party: "BJP",    seats: 240, vote_share: 36.6, color: "#FF6B35", women_pct: 13.3, scst_pct: 24.6, obc_pct: 28.7 },
   { party: "INC",    seats:  99, vote_share: 21.2, color: "#1A73E8", women_pct: 13.1, scst_pct: 22.2, obc_pct: 25.3 },
-  { party: "Others", seats:  85, vote_share: 25.4, color: "#95A5A6", women_pct: 16.5, scst_pct: 22.0, obc_pct: 26.5 },
+  { party: "Others", seats:  72, vote_share: 22.4, color: "#95A5A6", women_pct: 16.5, scst_pct: 22.0, obc_pct: 26.5 },
   { party: "SP",     seats:  37, vote_share:  4.6, color: "#CC0000", women_pct: 10.8, scst_pct: 27.0, obc_pct: 45.9 },
   { party: "TMC",    seats:  29, vote_share:  4.4, color: "#2E8B57", women_pct: 38.0, scst_pct: 17.2, obc_pct: 17.2 },
   { party: "DMK",    seats:  22, vote_share:  1.8, color: "#FF0000", women_pct: 13.6, scst_pct: 31.8, obc_pct: 31.8 },
   { party: "TDP",    seats:  16, vote_share:  1.5, color: "#FFDD00", women_pct:  6.3, scst_pct: 18.8, obc_pct: 31.3 },
   { party: "JDU",    seats:  12, vote_share:  1.4, color: "#27AE60", women_pct:  8.3, scst_pct: 16.7, obc_pct: 41.7 },
+  { party: "SHSUBT", seats:   9, vote_share:  1.2, color: "#F39C12", women_pct: 11.1, scst_pct: 11.1, obc_pct: 22.2 },
+  { party: "CPIM",   seats:   4, vote_share:  0.8, color: "#D35400", women_pct: 25.0, scst_pct: 25.0, obc_pct: 0.0 },
   { party: "AAP",    seats:   3, vote_share:  1.1, color: "#1DB954", women_pct: 33.3, scst_pct: 33.3, obc_pct: 33.3 },
 ];
 

@@ -83,6 +83,8 @@ function KpiCard({ k, idx, pulse }: { k: KpiDef; idx: number; pulse?: number }) 
   }, [pulse]);
 
   const value = useCountUp(target, 1200, k.decimals);
+  const isLargeNumber = value >= 100000;
+
   return (
     <div className="perspective animate-fade-up flip-card" style={{ animationDelay: `${300 + idx * 90}ms` }}>
       <div className="flip-inner relative bp-card p-5 h-[150px]">
@@ -91,9 +93,9 @@ function KpiCard({ k, idx, pulse }: { k: KpiDef; idx: number; pulse?: number }) 
           <div className="mt-3 flex items-baseline gap-1 overflow-hidden">
             <span 
               className="bp-kpi-number text-2xl md:text-4xl block w-full truncate"
-              style={{ fontSize: "clamp(1.2rem, 4vw, 2.2rem)" }}
+              style={{ fontSize: isLargeNumber ? "clamp(1.2rem, 4vw, 1.6rem)" : "clamp(1.2rem, 4vw, 2.2rem)" }}
             >
-              {k.key === "gdp" ? formatCurrency(value) : (
+              {k.key === "gdp" || (k.suffix === "₹" && value >= 100000) ? formatCurrency(value) : (
                 <>
                   {k.suffix === "₹" ? "₹" : ""}
                   {value.toLocaleString("en-IN", { maximumFractionDigits: k.decimals })}
