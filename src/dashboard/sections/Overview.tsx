@@ -63,6 +63,12 @@ function Sparkline({ data, color }: { data: number[]; color: string }) {
   );
 }
 
+function formatCurrency(v: number) {
+  if (v >= 10000000) return `₹${(v / 10000000).toFixed(2)}Cr`;
+  if (v >= 100000) return `₹${(v / 100000).toFixed(2)}L`;
+  return `₹${v.toLocaleString("en-IN")}`;
+}
+
 function KpiCard({ k, idx, pulse }: { k: KpiDef; idx: number; pulse?: number }) {
   const [target, setTarget] = useState(k.value);
   const [flash, setFlash] = useState<"up" | "down" | null>(null);
@@ -81,23 +87,30 @@ function KpiCard({ k, idx, pulse }: { k: KpiDef; idx: number; pulse?: number }) 
     <div className="perspective animate-fade-up flip-card" style={{ animationDelay: `${300 + idx * 90}ms` }}>
       <div className="flip-inner relative bp-card p-5 h-[150px]">
         <div className={`flip-face absolute inset-0 p-5 ${flash === "up" ? "bp-flash-up" : flash === "down" ? "bp-flash-down" : ""}`}>
-          <div className="text-xs uppercase tracking-wider text-muted-foreground">{k.label}</div>
-          <div className="mt-3 flex items-baseline gap-1">
-            <span className="bp-kpi-number text-4xl">
-              {k.suffix === "₹" ? "₹" : ""}
-              {value.toLocaleString("en-IN", { maximumFractionDigits: k.decimals })}
-              {k.suffix !== "₹" && <span className="text-base ml-1 text-muted-foreground">{k.suffix}</span>}
+          <div className="text-[10px] md:text-xs uppercase tracking-wider text-muted-foreground truncate">{k.label}</div>
+          <div className="mt-3 flex items-baseline gap-1 overflow-hidden">
+            <span 
+              className="bp-kpi-number text-2xl md:text-4xl block w-full truncate"
+              style={{ fontSize: "clamp(1.2rem, 4vw, 2.2rem)" }}
+            >
+              {k.key === "gdp" ? formatCurrency(value) : (
+                <>
+                  {k.suffix === "₹" ? "₹" : ""}
+                  {value.toLocaleString("en-IN", { maximumFractionDigits: k.decimals })}
+                  {k.suffix !== "₹" && <span className="text-xs md:text-base ml-0.5 text-muted-foreground">{k.suffix}</span>}
+                </>
+              )}
             </span>
           </div>
           <div className="absolute bottom-3 left-5 right-5 flex items-center gap-2 text-[11px] font-mono">
             {flash === "up" ? <ArrowUp className="w-3 h-3 text-india-green" /> : flash === "down" ? <ArrowDown className="w-3 h-3 text-india-red" /> : null}
-            <span className="text-muted-foreground">live signal • hover ↻</span>
+            <span className="text-muted-foreground opacity-0">.</span>
           </div>
         </div>
         <div className="flip-face flip-back absolute inset-0 p-5 bg-card rounded-xl border border-saffron/40">
-          <div className="text-xs uppercase tracking-wider text-saffron">{k.label} • trend</div>
+          <div className="text-[10px] uppercase tracking-wider text-saffron">{k.label} • trend</div>
           <div className="mt-3"><Sparkline data={k.spark} color={k.color} /></div>
-          <p className="mt-2 text-[11px] leading-snug text-muted-foreground">{k.note}</p>
+          <p className="mt-2 text-[10px] leading-snug text-muted-foreground line-clamp-2">{k.note}</p>
         </div>
       </div>
     </div>

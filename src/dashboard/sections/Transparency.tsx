@@ -6,18 +6,36 @@ import { useFilters } from "../store";
 import { ChartCard, DarkTooltip } from "../ChartBits";
 
 function Gauge({ value, label, color }: { value: number; label: string; color: string }) {
-  const data = [{ name: label, value, fill: color }];
+  const radius = 60;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (value / 100) * circumference;
+
   return (
-    <div className="relative h-[220px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <RadialBarChart data={data} innerRadius="70%" outerRadius="100%" startAngle={210} endAngle={-30}>
-          <PolarAngleAxis type="number" domain={[0, 100]} tick={false} />
-          <RadialBar dataKey="value" cornerRadius={10} background={{ fill: "hsl(var(--muted) / 0.3)" }} />
-        </RadialBarChart>
-      </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-        <div className="bp-kpi-number text-4xl">{value.toFixed(1)}<span className="text-base text-muted-foreground">%</span></div>
-        <div className="text-xs text-muted-foreground uppercase tracking-wider mt-1">{label}</div>
+    <div className="flex flex-col items-center justify-center py-2">
+      <div className="relative w-[140px] h-[140px]">
+        <svg className="w-full h-full -rotate-90" viewBox="0 0 140 140">
+          <circle cx="70" cy="70" r={radius} stroke="#F1F5F9" strokeWidth="12" fill="none" />
+          <circle 
+            cx="70" cy="70" r={radius} stroke={color} strokeWidth="12" fill="none"
+            strokeDasharray={circumference}
+            style={{ 
+              strokeDashoffset: circumference,
+              animation: `gauge-fill 1.2s ease-out forwards`,
+              strokeLinecap: "round"
+            }}
+            className="transition-all duration-1000"
+          />
+          <style>{`
+            @keyframes gauge-fill {
+              from { stroke-dashoffset: ${circumference}; }
+              to { stroke-dashoffset: ${offset}; }
+            }
+          `}</style>
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="bp-kpi-number text-2xl font-bold">{value.toFixed(1)}%</span>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{label}</span>
+        </div>
       </div>
     </div>
   );
@@ -30,7 +48,6 @@ export function Transparency() {
     if (state !== "IN") arr = arr.filter((c) => c.state === state);
     if (caste !== "All") arr = arr.filter((c) => c.caste === caste);
     if (religion !== "All") {
-      // Filter to candidates from states where the selected religion has ≥ 10% share
       const matchStates = new Set(STATES.filter((s) => (s.religion[religion as keyof typeof s.religion] ?? 0) >= 10).map((s) => s.code));
       arr = arr.filter((c) => matchStates.has(c.state));
     }
@@ -41,7 +58,6 @@ export function Transparency() {
   const crim = filteredCandidates.filter((c) => c.criminal).length;
   const ser = filteredCandidates.filter((c) => c.serious).length;
 
-  // Histogram: bins by log10(assets)
   const histogram = useMemo(() => {
     const bins = [0.1, 0.5, 1, 5, 10, 50, 100, 500, 1000];
     const labels = bins.map((b) => `≤${b}`);
@@ -55,21 +71,35 @@ export function Transparency() {
     return labels.map((l, i) => ({ bucket: l, all: all[i], winners: win[i] }));
   }, [filteredCandidates]);
 
+  const eduLabels: Record<string, string> = {
+    Illiterate: "None",
+    Primary: "Primary",
+    Secondary: "Sec.",
+    HigherSec: "H.Sec",
+    "Graduate+": "Grad.",
+    PhD: "PhD"
+  };
+
+  const eduColors: Record<string, string> = {
+    Illiterate: "#94A3B8",
+    Primary: "#93C5FD",
+    Secondary: "#60A5FA",
+    HigherSec: "#3B82F6",
+    "Graduate+": "#2563EB",
+    PhD: "#1E3A8A",
+  };
+
   const eduBreakdown = useMemo(() => {
     const buckets: Record<string, number> = {};
     for (const c of filteredCandidates) buckets[c.education] = (buckets[c.education] || 0) + 1;
     const order = ["Illiterate", "Primary", "Secondary", "HigherSec", "Graduate+", "PhD"];
-    return order.map((e) => ({ education: e, count: buckets[e] || 0, pct: ((buckets[e] || 0) / total) * 100 }));
+    return order.map((e) => ({ 
+      education: e, 
+      label: eduLabels[e] || e,
+      count: buckets[e] || 0, 
+      pct: ((buckets[e] || 0) / total) * 100 
+    }));
   }, [filteredCandidates, total]);
-
-  const eduColors: Record<string, string> = {
-    Illiterate: "hsl(var(--india-red))",
-    Primary: "hsl(var(--india-gold))",
-    Secondary: "hsl(var(--saffron))",
-    HigherSec: "hsl(var(--india-blue))",
-    "Graduate+": "hsl(var(--india-green))",
-    PhD: "hsl(var(--india-purple))",
-  };
 
   const parties = useMemo(() => partyTransparency(filteredCandidates), [filteredCandidates]);
   const [sortBy, setSortBy] = useState<"criminal_pct" | "serious_pct" | "median_assets">("criminal_pct");
@@ -96,25 +126,23 @@ export function Transparency() {
         )}
       </header>
 
-      <div className="grid-12">
-        <div className="col-span-12 md:col-span-3 bp-card p-4">
-          <Gauge value={(crim / total) * 100} label="Criminal cases" color="hsl(var(--india-red))" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="col-span-1 bp-card p-2 md:p-4">
+          <Gauge value={(crim / total) * 100} label="Criminal" color="#EF4444" />
         </div>
-        <div className="col-span-12 md:col-span-3 bp-card p-4">
-          <Gauge value={(ser / total) * 100} label="Serious charges" color="hsl(var(--india-purple))" />
+        <div className="col-span-1 bp-card p-2 md:p-4">
+          <Gauge value={(ser / total) * 100} label="Serious" color="#2563EB" />
         </div>
-        <div className="col-span-12 md:col-span-6">
-          <ChartCard title="Declared assets distribution" subtitle="₹ Crore · log-scale buckets · all candidates vs winners" delay={50}>
-            <div className="h-[230px]">
+        <div className="col-span-2 md:col-span-2">
+          <ChartCard title="Declared assets" subtitle="₹ Crore · log-scale" delay={50}>
+            <div className="h-[140px]">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={histogram} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <BarChart data={histogram} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="bucket" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" />
-                  <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" />
+                  <XAxis dataKey="bucket" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }} stroke="hsl(var(--border))" />
+                  <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 9 }} stroke="hsl(var(--border))" />
                   <Tooltip content={<DarkTooltip />} cursor={{ fill: "hsl(var(--muted) / 0.3)" }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                  <Bar dataKey="all" name="All candidates" fill="hsl(var(--india-blue) / 0.5)" radius={[3, 3, 0, 0]} />
-                  <Bar dataKey="winners" name="Winners" fill="hsl(var(--saffron))" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="winners" name="Winners" fill="hsl(var(--saffron))" radius={[2, 2, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -123,16 +151,16 @@ export function Transparency() {
       </div>
 
       <ChartCard title="Education breakdown of all candidates" subtitle={`${total} synthetic records`}>
-        <div className="space-y-2">
+        <div className="space-y-2.5 py-1">
           {eduBreakdown.map((e, i) => (
-            <div key={e.education} className="grid grid-cols-12 items-center gap-3 text-sm animate-fade-up" style={{ animationDelay: `${i * 50}ms` }}>
-              <div className="col-span-2 font-medium">{e.education}</div>
-              <div className="col-span-9">
-                <div className="h-3 rounded bg-muted/40 overflow-hidden">
-                  <div className="h-full rounded" style={{ width: `${Math.min(100, e.pct * 2)}%`, background: eduColors[e.education] }} />
+            <div key={e.education} className="grid grid-cols-12 items-center gap-2 md:gap-3 text-xs md:text-sm animate-fade-up" style={{ animationDelay: `${i * 50}ms` }}>
+              <div className="col-span-3 md:col-span-2 font-medium truncate">{e.label}</div>
+              <div className="col-span-7 md:col-span-9">
+                <div className="h-2.5 md:h-3 rounded-full bg-muted/40 overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${Math.min(100, e.pct * 2.5)}%`, background: eduColors[e.education] }} />
                 </div>
               </div>
-              <div className="col-span-1 text-right font-mono text-muted-foreground">{e.pct.toFixed(1)}%</div>
+              <div className="col-span-2 md:col-span-1 text-right font-mono text-muted-foreground">{e.pct.toFixed(1)}%</div>
             </div>
           ))}
         </div>

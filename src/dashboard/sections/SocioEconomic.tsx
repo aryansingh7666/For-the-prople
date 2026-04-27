@@ -1,4 +1,4 @@
-import { CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from "recharts";
+import { CartesianGrid, Cell, LabelList, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from "recharts";
 import { Fragment } from "react";
 import { CORRELATION, CORRELATION_LABELS, STATES } from "../data";
 import { ChartCard, DarkTooltip } from "../ChartBits";
@@ -18,7 +18,8 @@ function corrColor(v: number) {
 export function SocioEconomic() {
   const { religion, state: stateFilter } = useFilters();
   const data = STATES.map((s) => ({
-    x: s.literacy, y: s.gdp_per_capita / 1000, z: s.population_m, name: s.name, code: s.code,
+    x: s.literacy, y: s.gdp_per_capita, z: s.population_m, name: s.name, code: s.code,
+    hdi: s.hdi,
     religionShare: s.religion[religion as keyof typeof s.religion] ?? 0,
   }));
 
@@ -32,27 +33,38 @@ export function SocioEconomic() {
       <div className="grid-12">
         <div className="col-span-12 lg:col-span-7">
           <ChartCard title="Literacy vs GDP per capita" subtitle={religion === "All" ? "Bubble size = population (millions)" : `Highlighting states where ${religion} ≥ 15%`}>
-            <div className="h-[300px] md:h-[360px]">
+            <div className="h-[340px] md:h-[400px] relative">
+              <div className="absolute top-2 right-2 bg-card/80 p-2 rounded-md border border-border shadow-sm z-10 text-[10px] md:text-[11px] space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
+                  <span className="text-muted-foreground">High HDI (>0.65)</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-[#2563EB]" />
+                  <span className="text-muted-foreground">Low HDI (<0.65)</span>
+                </div>
+              </div>
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 10, right: 20, left: 0, bottom: 10 }}>
+                <ScatterChart margin={{ top: 20, right: 20, left: 20, bottom: 20 }}>
                   <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
-                  <XAxis type="number" dataKey="x" name="Literacy" unit="%" domain={[55, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} stroke="hsl(var(--border))" />
-                  <YAxis type="number" dataKey="y" name="GDP/cap" unit="k" domain={[40, 480]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} stroke="hsl(var(--border))" />
-                  <ZAxis type="number" dataKey="z" range={[60, 1200]} />
-                  <Tooltip content={<DarkTooltip formatter={(v: number, n: string) => n === "GDP/cap" ? `₹${v}k` : n === "Literacy" ? `${v}%` : `${v}M`} />} cursor={{ strokeDasharray: "3 3" }} />
+                  <XAxis type="number" dataKey="x" name="Literacy" unit="%" domain={[55, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" label={{ value: "Literacy %", position: "bottom", offset: 0, fontSize: 11 }} />
+                  <YAxis type="number" dataKey="y" name="GDP/cap" domain={[40000, 500000]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" label={{ value: "GDP per capita (₹)", angle: -90, position: "insideLeft", fontSize: 11, dy: 60 }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+                  <ZAxis type="number" dataKey="z" range={[150, 1500]} />
+                  <Tooltip content={<DarkTooltip formatter={(v: number, n: string) => n === "GDP/cap" ? `₹${v.toLocaleString()}` : n === "Literacy" ? `${v}%` : `${v}M`} />} cursor={{ strokeDasharray: "3 3" }} />
                   <Scatter data={data} fill="hsl(var(--saffron))" isAnimationActive animationDuration={300}>
                     {data.map((d, i) => {
                       const isStateMatch = stateFilter !== "IN" && d.code === stateFilter;
                       const dimByReligion = religion !== "All" && d.religionShare < 15;
-                      const base = d.x > 80 ? "hsl(var(--india-green))" : d.x > 70 ? "hsl(var(--india-blue))" : "hsl(var(--saffron))";
+                      const base = d.hdi >= 0.65 ? "#10B981" : "#2563EB";
                       return (
                         <Cell key={i}
                           fill={isStateMatch ? "hsl(var(--india-red))" : base}
-                          fillOpacity={dimByReligion ? 0.18 : isStateMatch ? 1 : 0.7}
-                          stroke={isStateMatch ? "hsl(var(--india-red))" : "none"}
-                          strokeWidth={isStateMatch ? 2 : 0} />
+                          fillOpacity={dimByReligion ? 0.18 : 0.75}
+                          stroke="white"
+                          strokeWidth={1.5} />
                       );
                     })}
+                    <LabelList dataKey="code" position="center" style={{ fill: "white", fontSize: "9px", fontWeight: "bold", pointerEvents: "none" }} />
                   </Scatter>
                 </ScatterChart>
               </ResponsiveContainer>

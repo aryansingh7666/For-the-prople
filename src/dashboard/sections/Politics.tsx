@@ -129,7 +129,7 @@ export function Politics() {
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={PARTY_2024} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="party" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} stroke="hsl(var(--border))" />
+                  <XAxis dataKey="party" tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" interval={0} angle={-35} textAnchor="end" height={60} />
                   <YAxis tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 11 }} stroke="hsl(var(--border))" />
                   <Tooltip content={<DarkTooltip />} cursor={{ fill: "hsl(var(--muted) / 0.3)" }} />
                   <Bar dataKey="seats" radius={[4, 4, 0, 0]}>
