@@ -1,0 +1,262 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ================================================================
+   FOR THE PEOPLE — Design System (HSL only)
+   ================================================================ */
+@layer base {
+  :root {
+    /* Surfaces — light fintech */
+    --background: 225 100% 97%;        /* #F0F4FF */
+    --foreground: 222 47% 11%;         /* #0F172A */
+    --surface: 0 0% 100%;              /* #FFFFFF */
+    --card: 0 0% 100%;                 /* #FFFFFF */
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;              /* #F1F5F9 */
+    --muted-foreground: 215 16% 47%;   /* #475569 */
+    --border: 214 32% 91%;             /* #E2E8F0 */
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;               /* #2563EB */
+
+    /* Accent palette — remapped to navy/blue scheme.
+       Token names kept (saffron/india-*) so existing components inherit instantly. */
+    --saffron: 217 91% 60%;            /* primary blue #2563EB */
+    --india-blue: 199 89% 48%;         /* sky #0EA5E9 */
+    --india-green: 160 84% 39%;        /* emerald #10B981 */
+    --india-gold: 38 92% 50%;          /* amber #F59E0B */
+    --india-red: 0 84% 60%;            /* #EF4444 */
+    --india-purple: 239 84% 67%;       /* indigo #6366F1 */
+
+    /* Brand navy for sidebar */
+    --navy: 224 64% 33%;               /* #1E3A8A */
+    --navy-deep: 226 71% 25%;          /* #162E6B */
+    --sky-soft: 213 94% 78%;           /* #93C5FD */
+
+    /* Semantic */
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 199 89% 48%;
+    --secondary-foreground: 0 0% 100%;
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 39%;
+
+    --radius: 1rem;
+
+    /* Gradients */
+    --gradient-border: linear-gradient(90deg, hsl(var(--saffron)), hsl(var(--india-blue)) 50%, hsl(var(--india-purple)));
+    --gradient-hero: radial-gradient(1200px 600px at 5% 0%, hsl(var(--saffron) / 0.07), transparent 60%),
+                     radial-gradient(1000px 700px at 95% 100%, hsl(var(--india-blue) / 0.07), transparent 60%);
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(0 0% 100%));
+    --gradient-saffron-white-green: linear-gradient(180deg, hsl(var(--saffron)), hsl(213 94% 78%));
+
+    /* Shadows */
+    --shadow-card: 0 4px 24px -6px hsl(217 91% 60% / 0.10);
+    --shadow-glow: 0 8px 32px -6px hsl(217 91% 60% / 0.25);
+    --transition-smooth: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    /* Sidebar — deep navy */
+    --sidebar-background: 224 64% 33%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 226 71% 25%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 226 71% 28%;
+    --sidebar-ring: 217 91% 60%;
+  }
+
+  .dark { color-scheme: light; }
+}
+
+@layer base {
+  * { @apply border-border; }
+  html, body, #root { @apply bg-background text-foreground; min-height: 100%; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-image: var(--gradient-hero);
+    background-attachment: fixed;
+    background-color: hsl(var(--background));
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, h4, .font-display { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; letter-spacing: -0.02em; }
+  .font-mono, code, kbd { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+  ::selection { background: hsl(var(--saffron) / 0.25); color: hsl(var(--foreground)); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+  ::-webkit-scrollbar-thumb { background: hsl(214 25% 80%); border-radius: 999px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--saffron) / 0.7); }
+}
+
+@layer components {
+  /* Card with gradient top border */
+  .bp-card {
+    position: relative;
+    @apply rounded-2xl bg-card border border-border;
+    background-image: var(--gradient-card);
+    box-shadow: var(--shadow-card);
+    transition: var(--transition-smooth);
+  }
+  @media (max-width: 767px) {
+    .bp-card { @apply rounded-xl; }
+    .bp-card.p-5 { padding: 0.875rem !important; }
+    .bp-card.p-4 { padding: 0.75rem !important; }
+  }
+  .bp-card::before {
+    content: "";
+    position: absolute; inset: 0 0 auto 0; height: 2px;
+    background: var(--gradient-border);
+    border-top-left-radius: inherit; border-top-right-radius: inherit;
+    opacity: 1;
+  }
+  .bp-card:hover {
+    transform: translateY(-2px);
+    border-color: hsl(var(--saffron));
+    box-shadow: var(--shadow-glow), var(--shadow-card);
+  }
+
+  .bp-pill {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-xs font-medium;
+    transition: var(--transition-smooth);
+  }
+  .bp-pill:hover { border-color: hsl(var(--saffron)); color: hsl(var(--saffron)); }
+
+  .bp-section-title {
+    @apply font-display text-3xl md:text-4xl font-bold tracking-tight;
+    background: linear-gradient(90deg, hsl(var(--navy)), hsl(var(--saffron)));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .bp-kpi-number {
+    @apply font-display font-bold tabular-nums;
+    background: linear-gradient(180deg, hsl(var(--navy)), hsl(var(--saffron)));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+
+  .bp-flash-up { animation: flash-up 1.2s ease-out; }
+  .bp-flash-down { animation: flash-down 1.2s ease-out; }
+
+  /* 3D flip */
+  .perspective { perspective: 1200px; }
+  .flip-inner { transform-style: preserve-3d; transition: transform 700ms cubic-bezier(0.4, 0, 0.2, 1); }
+  .flip-card:hover .flip-inner { transform: rotateY(180deg); }
+  .flip-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .flip-back { transform: rotateY(180deg); }
+
+  /* Insight card */
+  .insight-card {
+    @apply relative rounded-xl bg-card border border-border p-4;
+    border-left: 3px solid hsl(var(--saffron));
+    transition: var(--transition-smooth);
+  }
+  .insight-card:hover {
+    background: hsl(var(--muted));
+    border-left-color: hsl(var(--india-blue));
+    transform: translateX(2px);
+  }
+
+  /* Map path */
+  .map-path { transition: fill 220ms ease, stroke 220ms ease, opacity 220ms ease; cursor: pointer; }
+  .map-path:hover { stroke: hsl(var(--saffron)); stroke-width: 1.5; filter: drop-shadow(0 0 8px hsl(var(--saffron) / 0.6)); }
+  .map-path.draw { stroke-dasharray: 600; stroke-dashoffset: 600; animation: draw 1.6s ease-out forwards; }
+
+  /* Skeleton */
+  .skeleton { @apply rounded-md bg-muted relative overflow-hidden; }
+  .skeleton::after {
+    content: ""; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, hsl(var(--saffron) / 0.08), transparent);
+    animation: shimmer 1.4s infinite;
+  }
+
+  /* Navy sidebar nav item */
+  .navy-nav-item {
+    @apply relative flex items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors;
+    color: hsl(0 0% 100%);
+  }
+  .navy-nav-item:hover { background: rgb(255 255 255 / 0.1); }
+  .navy-nav-item.active {
+    background: hsl(var(--saffron));
+    color: #fff;
+    box-shadow: 0 0 16px -2px hsl(var(--saffron) / 0.6);
+  }
+  .navy-nav-item.active::before {
+    content: ""; position: absolute; left: -8px; top: 6px; bottom: 6px;
+    width: 3px; background: #fff; border-radius: 2px;
+  }
+
+  /* Navy input (sidebar) */
+  .navy-input {
+    background: hsl(var(--navy-deep));
+    color: #fff;
+    border: 1px solid hsl(226 71% 35%);
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.6rem;
+    font-size: 0.85rem;
+    width: 100%;
+    outline: none;
+    transition: border-color 200ms;
+  }
+  .navy-input:focus { border-color: hsl(var(--saffron)); box-shadow: 0 0 0 3px hsl(var(--saffron) / 0.25); }
+
+  /* Pulse button */
+  .btn-pulse {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white;
+    background: hsl(var(--saffron));
+    transition: var(--transition-smooth);
+  }
+  .btn-pulse:hover { background: hsl(224 76% 48%); box-shadow: 0 0 20px -2px hsl(var(--saffron) / 0.6); }
+  .btn-pulse::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit;
+    box-shadow: 0 0 0 0 hsl(var(--saffron) / 0.6);
+    animation: btn-pulse 2.2s ease-out infinite;
+  }
+  @keyframes btn-pulse {
+    0% { box-shadow: 0 0 0 0 hsl(var(--saffron) / 0.55); }
+    70% { box-shadow: 0 0 0 14px hsl(var(--saffron) / 0); }
+    100% { box-shadow: 0 0 0 0 hsl(var(--saffron) / 0); }
+  }
+}
+
+@layer utilities {
+  .text-saffron { color: hsl(var(--saffron)); }
+  .text-blue-india { color: hsl(var(--india-blue)); }
+  .text-green-india { color: hsl(var(--india-green)); }
+  .text-gold { color: hsl(var(--india-gold)); }
+  .text-red-india { color: hsl(var(--india-red)); }
+  .text-navy { color: hsl(var(--navy)); }
+  .bg-navy { background-color: hsl(var(--navy)); }
+  .bg-navy-deep { background-color: hsl(var(--navy-deep)); }
+  .bg-saffron { background-color: hsl(var(--saffron)); }
+  .bg-surface { background-color: hsl(var(--surface)); }
+  .border-saffron { border-color: hsl(var(--saffron)); }
+  .grid-12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1rem; }
+  .stagger-1 { animation-delay: 50ms; }
+  .stagger-2 { animation-delay: 100ms; }
+  .stagger-3 { animation-delay: 150ms; }
+  .stagger-4 { animation-delay: 200ms; }
+  .stagger-5 { animation-delay: 250ms; }
+  .stagger-6 { animation-delay: 300ms; }
+}
+
+@keyframes shimmer { 100% { transform: translateX(100%); } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes flash-up {
+  0% { background-color: hsl(var(--india-green) / 0.35); }
+  100% { background-color: transparent; }
+}
+@keyframes flash-down {
+  0% { background-color: hsl(var(--india-red) / 0.35); }
+  100% { background-color: transparent; }
+}
+@keyframes fade-up {
+  0% { opacity: 0; transform: translateY(14px); filter: blur(6px); }
+  100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+@keyframes fade-in { 0% { opacity: 0 } 100% { opacity: 1 } }
+@keyframes type-caret { 50% { opacity: 0; } }
