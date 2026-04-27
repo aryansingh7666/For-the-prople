@@ -162,19 +162,19 @@ export function Demographics() {
       </div>
 
       <ChartCard title={`Caste population share · ${s.name}`} subtitle={`${year} estimation based on local factors`} delay={100}>
-        <div className="space-y-2">
+        <div className="space-y-4 pr-4">
           {CASTE_GROUPS.map((c, i) => {
             const v = stateCasteShare[c];
             const dim = cFilter !== "All" && cFilter !== c;
             return (
-              <div key={c} className={`grid grid-cols-12 items-center gap-3 text-sm animate-fade-up transition-opacity duration-300 ${dim ? "opacity-30" : ""}`} style={{ animationDelay: `${i * 60}ms` }}>
-                <div className="col-span-2 font-medium">{c}</div>
-                <div className="col-span-9">
-                  <div className="h-3 rounded bg-muted/40 overflow-hidden">
-                    <div className="h-full rounded transition-all duration-300" style={{ width: `${v * 2}%`, background: `linear-gradient(90deg, ${casteColors[c]}, hsl(var(--saffron)))` }} />
-                  </div>
+              <div key={c} className={`flex items-center gap-3 text-sm animate-fade-up transition-opacity duration-300 ${dim ? "opacity-30" : ""}`} style={{ animationDelay: `${i * 60}ms` }}>
+                <div className="min-w-[60px] font-medium">{c}</div>
+                <div className="flex-grow h-3 rounded bg-muted/40 overflow-hidden">
+                  <div className="h-full rounded transition-all duration-300" style={{ width: `${v * 2.2}%`, background: `linear-gradient(90deg, ${casteColors[c]}, hsl(var(--saffron)))` }} />
                 </div>
-                <div className="col-span-1 text-right font-mono text-muted-foreground">{v.toFixed(1)}%</div>
+                <div className="min-w-[48px] text-right font-mono text-muted-foreground whitespace-nowrap">
+                  {v.toFixed(1)}%
+                </div>
               </div>
             );
           })}

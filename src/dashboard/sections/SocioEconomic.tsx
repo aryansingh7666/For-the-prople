@@ -1,7 +1,7 @@
-import { CartesianGrid, Cell, LabelList, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from "recharts";
+import { CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis } from "recharts";
 import { Fragment } from "react";
 import { CORRELATION, CORRELATION_LABELS, STATES } from "../data";
-import { ChartCard, DarkTooltip } from "../ChartBits";
+import { ChartCard } from "../ChartBits";
 import { useFilters } from "../store";
 
 function corrColor(v: number) {
@@ -14,6 +14,24 @@ function corrColor(v: number) {
   const k = (t - 0.5) / 0.5;
   return `hsl(var(--india-blue) / ${0.3 + k * 0.7})`;
 }
+
+const BubbleTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    const d = payload[0].payload;
+    return (
+      <div className="bg-white rounded-[12px] shadow-[0_8px_32px_rgba(0,0,0,0.15)] border-l-[3px] border-[#2563EB] p-[14px_16px] animate-in fade-in duration-200 pointer-events-none min-w-[200px]">
+        <div className="font-bold text-base text-slate-900 mb-1.5">{d.name}</div>
+        <div className="space-y-1 text-[13px] text-slate-600">
+          <div className="flex justify-between"><span>Literacy:</span> <span className="font-mono font-bold text-slate-900">{d.x}%</span></div>
+          <div className="flex justify-between"><span>GDP/capita:</span> <span className="font-mono font-bold text-slate-900">₹{(d.y/1000).toFixed(0)}k</span></div>
+          <div className="flex justify-between"><span>HDI Score:</span> <span className="font-mono font-bold text-slate-900">{d.hdi.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span>Population:</span> <span className="font-mono font-bold text-slate-900">{d.z.toFixed(1)}M</span></div>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export function SocioEconomic() {
   const { religion, state: stateFilter } = useFilters();
@@ -33,7 +51,7 @@ export function SocioEconomic() {
       <div className="grid-12">
         <div className="col-span-12 lg:col-span-7">
           <ChartCard title="Literacy vs GDP per capita" subtitle={religion === "All" ? "Bubble size = population (millions)" : `Highlighting states where ${religion} ≥ 15%`}>
-            <div className="h-[340px] md:h-[400px] relative">
+            <div className="h-[340px] md:h-[400px] relative overflow-visible">
               <div className="absolute top-2 right-2 bg-card/80 p-2 rounded-md border border-border shadow-sm z-10 text-[10px] md:text-[11px] space-y-1">
                 <div className="flex items-center gap-1.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-[#10B981]" />
@@ -49,9 +67,9 @@ export function SocioEconomic() {
                   <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" />
                   <XAxis type="number" dataKey="x" name="Literacy" unit="%" domain={[55, 100]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" label={{ value: "Literacy %", position: "bottom", offset: 0, fontSize: 11 }} />
                   <YAxis type="number" dataKey="y" name="GDP/cap" domain={[40000, 500000]} tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10 }} stroke="hsl(var(--border))" label={{ value: "GDP per capita (₹)", angle: -90, position: "insideLeft", fontSize: 11, dy: 60 }} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
-                  <ZAxis type="number" dataKey="z" range={[150, 1500]} />
-                  <Tooltip content={<DarkTooltip formatter={(v: number, n: string) => n === "GDP/cap" ? `₹${v.toLocaleString()}` : n === "Literacy" ? `${v}%` : `${v}M`} />} cursor={{ strokeDasharray: "3 3" }} />
-                  <Scatter data={data} fill="hsl(var(--saffron))" isAnimationActive animationDuration={300}>
+                  <ZAxis type="number" dataKey="z" range={[20, 70]} />
+                  <Tooltip content={<BubbleTooltip />} cursor={{ strokeDasharray: "3 3" }} />
+                  <Scatter data={data} isAnimationActive animationDuration={400}>
                     {data.map((d, i) => {
                       const isStateMatch = stateFilter !== "IN" && d.code === stateFilter;
                       const dimByReligion = religion !== "All" && d.religionShare < 15;
@@ -59,12 +77,14 @@ export function SocioEconomic() {
                       return (
                         <Cell key={i}
                           fill={isStateMatch ? "hsl(var(--india-red))" : base}
-                          fillOpacity={dimByReligion ? 0.18 : 0.75}
+                          fillOpacity={dimByReligion ? 0.2 : 0.85}
                           stroke="white"
-                          strokeWidth={1.5} />
+                          strokeWidth={2}
+                          className="transition-all duration-150 hover:scale-[1.15] cursor-pointer origin-center"
+                          style={{ transformOrigin: "center" }}
+                        />
                       );
                     })}
-                    <LabelList dataKey="code" position="center" style={{ fill: "white", fontSize: "9px", fontWeight: "bold", pointerEvents: "none" }} />
                   </Scatter>
                 </ScatterChart>
               </ResponsiveContainer>
